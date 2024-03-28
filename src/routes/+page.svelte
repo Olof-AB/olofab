@@ -24,11 +24,11 @@
   </Card.Root>
   <Card.Root class="max-w-sm">
     <Card.Content>
-      Olof AB
+      
     </Card.Content>
   </Card.Root>
 </div>
-<div bind:clientWidth={width} bind:clientHeight={height} class="flex m-40" >
+<div bind:clientWidth={width} bind:clientHeight={height} class="flex md:m-40" >
   <Line {data} getX={(d) => d.time} {width} {height} />
 
 </div>
