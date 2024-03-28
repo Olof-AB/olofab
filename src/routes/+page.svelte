@@ -37,7 +37,8 @@
     </Card.Content>
   </Card.Root>
 </div>
-<div bind:clientWidth={width} bind:clientHeight={height} class="flex" >
+<div bind:clientWidth={width} bind:clientHeight={height} class="flex m-40" >
   <Line {data} getX={(d) => new Date(d.date)} {width} {height} />
+
 </div>
 </div>
