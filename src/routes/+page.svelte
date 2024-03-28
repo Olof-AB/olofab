@@ -1,28 +1,19 @@
 <script>
+  import { getWeather } from "$lib/weather";
   import * as Card from "$lib/components/ui/card";
   import Line from "$lib/components/viz/line.svelte";
+	import { onMount } from "svelte";
 
   let width;
   let height;
 
-  const data = [
-    {
-      date: "2024-02-12",
-      value: 12
-    },
-    {
-      date: "2024-02-13",
-      value: 13
-    },
-    {
-      date: "2024-02-14",
-      value: 11
-    },
-    {
-      date: "2024-02-15",
-      value: 15
-    },
-  ]
+  let data = [];
+  
+  onMount(async () => (
+    data = await getWeather()
+  ))
+
+  $: console.log(data);
 </script>
 
 <div class="flex flex-col justify-evenly min-h-screen">
@@ -38,7 +29,7 @@
   </Card.Root>
 </div>
 <div bind:clientWidth={width} bind:clientHeight={height} class="flex m-40" >
-  <Line {data} getX={(d) => new Date(d.date)} {width} {height} />
+  <Line {data} getX={(d) => d.time} {width} {height} />
 
 </div>
 </div>
