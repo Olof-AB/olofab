@@ -1,2 +1,16 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+  import * as Card from "$lib/components/ui/card";
+</script>
+
+<div class="flex flex-row justify-evenly items-center min-h-screen space-x-40">
+  <Card.Root class="max-w-xl">
+    <Card.Content>
+      Things are good
+    </Card.Content>
+  </Card.Root>
+  <Card.Root class="max-w-sm">
+    <Card.Content>
+      Olof AB
+    </Card.Content>
+  </Card.Root>
+</div>
