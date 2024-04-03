@@ -7,6 +7,12 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
+		namespace SuperForms {
+			type Message = {
+				type: 'success' | 'error';
+				text: string;
+			};
+		}
 	}
 }
 

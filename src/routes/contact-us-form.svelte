@@ -15,10 +15,16 @@
 		validators: zodClient(formSchema)
 	});
 
-	const { form: formData, enhance } = form;
+	const { form: formData, enhance, message } = form;
+
+	let dialogOpen = false;
+
+	$: if ($message?.status === 'success') {
+		dialogOpen = false;
+	}
 </script>
 
-<Dialog.Root>
+<Dialog.Root open={dialogOpen} onOpenChange={(isOpen) => (dialogOpen = isOpen)}>
 	<Dialog.Trigger class={buttonVariants()}>Contact Us</Dialog.Trigger>
 	<Dialog.Content>
 		<form method="post" use:enhance>
