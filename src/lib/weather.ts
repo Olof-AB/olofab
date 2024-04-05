@@ -6,7 +6,7 @@ export async function getWeather() {
 		longitude: 17.6389,
 		hourly: 'temperature_2m',
 		past_days: 7,
-		forecast_days: 0
+		forecast_days: 1
 	};
 	const url = 'https://api.open-meteo.com/v1/forecast';
 	const responses = await fetchWeatherApi(url, params);
@@ -38,11 +38,13 @@ export async function getWeather() {
 
 	// `weatherData` now contains a simple structure with arrays for datetime and weather data
 	// for (let i = 0; i < weatherData.hourly.time.length; i++) {
-	// 	console.log(
-	// 		weatherData.hourly.time[i].toISOString(),
-	// 		weatherData.hourly.temperature2m[i]
-	// 	);
+	// 	console.log(weatherData.hourly.time[i].toISOString(), weatherData.hourly.temperature2m[i]);
 	// }
+	console.log(weatherData[weatherData.length - 1]);
+	const now = new Date();
 
-	return weatherData;
+	const pastData = weatherData.filter(({ time }) => time < now);
+
+	console.log(pastData[pastData.length - 1]);
+	return pastData;
 }
