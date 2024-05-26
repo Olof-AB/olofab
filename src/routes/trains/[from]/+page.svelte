@@ -4,6 +4,9 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { Train } from '$lib/trains/types';
 	import { TrainStatus } from '$lib/trains/types';
+	import { fade, fly } from 'svelte/transition';
+	import { linear } from 'svelte/easing';
+	import { flip } from 'svelte/animate';
 
 	export let data: PageData;
 
@@ -33,13 +36,16 @@
 </script>
 
 <div class="flex flex-wrap justify-start">
-	{#each departures as train}
+	{#each departures as train (train.train)}
 		<!-- {#if train.operator === 'MTRN'} -->
 		<div
 			class="max-w-xlx m-1 border border-4 p-3"
 			class:border-green-800={train.status === TrainStatus.Arrived}
 			class:border-red-800={train.status === TrainStatus.Canceled}
 			class:border-gray-400={train.status === TrainStatus.Departed}
+			animate:flip={{ duration: 200, easing: linear }}
+			in:fly={{ y: 100, duration: 500, easing: linear }}
+			out:fade={{ duration: 500, easing: linear }}
 		>
 			<div class:text-gray-400={train.status === TrainStatus.Departed}>
 				<p>
