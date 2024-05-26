@@ -61,7 +61,7 @@ export async function get_trains(from: string, to: string | null = null) {
 				<FILTER>
 					<EQ name="Deleted" value="false" />
 					<GT name="AdvertisedTimeAtLocation" value="$dateadd(-0.2:00)" />
-					<LT name="AdvertisedTimeAtLocation" value="$dateadd(0.12:00)" />
+					<LT name="AdvertisedTimeAtLocation" value="$dateadd(0.4:00)" />
 					<OR>
 						${from_filter}
 						${to_filter}

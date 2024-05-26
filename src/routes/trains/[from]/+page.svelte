@@ -15,7 +15,9 @@
 		// return train.planned > now;
 	};
 
-	const departures = data.trains.filter((train) => train.departure && futureTrain(train));
+	const departures = data.trains.filter(
+		(train) => train.departure && futureTrain(train) && train.platform !== 'x'
+	);
 
 	const departuresWithArrivals = departures.map((train) => {
 		const arrival = data.trains.filter(
@@ -38,36 +40,34 @@
 	});
 </script>
 
-<div class="flex min-h-screen flex-row justify-start">
-	<div class="flex flex-col">
-		{#each departuresWithArrivals as train}
-			<!-- {#if train.operator === 'MTRN'} -->
-			<div
-				class="max-w-xlx m-1 border border-4 p-3"
-				class:border-green-800={train.prevArrival?.actual !== undefined}
-				class:border-red-800={train.canceled}
-				class:border-gray-400={train.actual !== undefined && !train.canceled}
-			>
-				<div class:text-gray-400={train.actual !== undefined && !train.canceled}>
-					<p class:text-green-800={train.prevArrival?.actual !== undefined}>
-						{train.prevArrival?.timestamp.toLocaleTimeString()}
-					</p>
-					<p class="font-bold">{train.planned.toLocaleTimeString()}</p>
-					{#if train.actual}
-						<p>Departed</p>
-					{:else if train.estimated}
-						<p>{train.estimated.toLocaleTimeString()}</p>
-					{:else}
-						<p>On time</p>
-					{/if}
-					<div class="flex justify-between">
-						<p>{train.platform}</p>
-						<p>{train.destination}</p>
-						<p>{train.train}</p>
-					</div>
+<div class="flex flex-wrap justify-start">
+	{#each departuresWithArrivals as train}
+		<!-- {#if train.operator === 'MTRN'} -->
+		<div
+			class="max-w-xlx m-1 border border-4 p-3"
+			class:border-green-800={train.prevArrival?.actual !== undefined}
+			class:border-red-800={train.canceled}
+			class:border-gray-400={train.actual !== undefined && !train.canceled}
+		>
+			<div class:text-gray-400={train.actual !== undefined && !train.canceled}>
+				<p class:text-green-800={train.prevArrival?.actual !== undefined}>
+					{train.prevArrival?.timestamp.toLocaleTimeString()}
+				</p>
+				<p class="font-bold">{train.planned.toLocaleTimeString()}</p>
+				{#if train.actual}
+					<p>Departed</p>
+				{:else if train.estimated}
+					<p>{train.estimated.toLocaleTimeString()}</p>
+				{:else}
+					<p>On time</p>
+				{/if}
+				<div class="flex justify-between">
+					<p>{train.platform}</p>
+					<p>{train.destination}</p>
+					<p>{train.train}</p>
 				</div>
 			</div>
-			<!-- {/if} -->
-		{/each}
-	</div>
+		</div>
+		<!-- {/if} -->
+	{/each}
 </div>
