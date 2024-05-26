@@ -15,11 +15,11 @@
 		// return train.planned > now;
 	};
 
-	const departures = data.trains.filter(
+	$: departures = data.trains.filter(
 		(train) => train.departure && futureTrain(train) && train.platform !== 'x'
 	);
 
-	const departuresWithArrivals = departures.map((train) => {
+	$: departuresWithArrivals = departures.map((train) => {
 		const arrival = data.trains.filter(
 			(t) => t.platform === train.platform && !t.departure && t.timestamp <= train.timestamp
 		);
