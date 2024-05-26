@@ -1,4 +1,6 @@
 import { env } from '$env/dynamic/private';
+import type { Train } from './types';
+import { TrainStatus } from './types';
 
 const api_key = env.TRAFIKVERKET_API;
 
@@ -85,7 +87,7 @@ export async function get_trains(from: string, to: string | null = null) {
 
 	const trains = parsedResponse['RESPONSE']['RESULT'][0]['TrainAnnouncement'];
 
-	const train_fixed = trains.map((train: TrvTrain) => ({
+	const train_fixed: Train[] = trains.map((train: TrvTrain) => ({
 		planned: new Date(train['AdvertisedTimeAtLocation']),
 		estimated: train['EstimatedTimeAtLocation']
 			? new Date(train['EstimatedTimeAtLocation'])
@@ -100,23 +102,48 @@ export async function get_trains(from: string, to: string | null = null) {
 		train: train['AdvertisedTrainIdent'],
 		destination: train['ToLocation']
 			? train['ToLocation'].map((loc) => loc['LocationName']).join(', ')
-			: 'Unknown',
+			: '?',
 		platform: train['TrackAtLocation'],
 		operator: train['Operator'],
 		departure: train['ActivityType'] === 'Avgang',
 		advertised: train['Advertised'],
-		canceled: train['Canceled']
+		canceled: train['Canceled'],
+		status: TrainStatus.Unknown
 	}));
 
-	if (to === null) {
-		return train_fixed;
-	}
+	const departures = train_fixed.filter((train) => train.departure && train.location === from);
 
-	return train_fixed.filter((train) => {
-		if (!train.departure && train.location === from) {
-			return true;
+	const departuresWithArrivals = departures.map((train) => {
+		const arrival = train_fixed.filter(
+			(t) => t.platform === train.platform && !t.departure && t.timestamp <= train.timestamp
+		);
+		if (arrival.length > 0) {
+			return { ...train, prevArrival: arrival[arrival.length - 1] };
+		}
+		return train;
+	});
+
+	const departuresWithArrivalsAndStatus = departuresWithArrivals.map((train) => {
+		if (train.canceled) {
+			return { ...train, status: TrainStatus.Canceled };
 		}
 
+		if (train.actual) {
+			return { ...train, status: TrainStatus.Departed };
+		}
+
+		if (train.prevArrival && train.prevArrival.actual) {
+			return { ...train, status: TrainStatus.Arrived };
+		}
+
+		return { ...train, status: TrainStatus.NotArrived };
+	});
+
+	if (to === null) {
+		return departuresWithArrivalsAndStatus;
+	}
+
+	return departuresWithArrivalsAndStatus.filter((train) => {
 		return train_fixed.some((other) => {
 			if (other.departure) {
 				return false;

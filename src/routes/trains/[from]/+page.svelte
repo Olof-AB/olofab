@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { PageData } from '../$types';
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import type { PageData } from './$types';
+	import { invalidateAll } from '$app/navigation';
+	import type { Train } from '$lib/trains/types';
+	import { TrainStatus } from '$lib/trains/types';
 
 	export let data: PageData;
 
-	const futureTrain = (train) => {
+	const futureTrain = (train: Train) => {
 		const now = new Date();
 
 		return now.getTime() - train.timestamp.getTime() < 30 * 60 * 1000;
@@ -16,18 +18,8 @@
 	};
 
 	$: departures = data.trains.filter(
-		(train) => train.departure && futureTrain(train) && train.platform !== 'x'
+		(train: Train) => futureTrain(train) && train.platform !== 'x'
 	);
-
-	$: departuresWithArrivals = departures.map((train) => {
-		const arrival = data.trains.filter(
-			(t) => t.platform === train.platform && !t.departure && t.timestamp <= train.timestamp
-		);
-		if (arrival.length > 0) {
-			return { ...train, prevArrival: arrival[arrival.length - 1] };
-		}
-		return train;
-	});
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -41,17 +33,21 @@
 </script>
 
 <div class="flex flex-wrap justify-start">
-	{#each departuresWithArrivals as train}
+	{#each departures as train}
 		<!-- {#if train.operator === 'MTRN'} -->
 		<div
 			class="max-w-xlx m-1 border border-4 p-3"
-			class:border-green-800={train.prevArrival?.actual !== undefined}
-			class:border-red-800={train.canceled}
-			class:border-gray-400={train.actual !== undefined && !train.canceled}
+			class:border-green-800={train.status === TrainStatus.Arrived}
+			class:border-red-800={train.status === TrainStatus.Canceled}
+			class:border-gray-400={train.status === TrainStatus.Departed}
 		>
-			<div class:text-gray-400={train.actual !== undefined && !train.canceled}>
-				<p class:text-green-800={train.prevArrival?.actual !== undefined}>
-					{train.prevArrival?.timestamp.toLocaleTimeString()}
+			<div class:text-gray-400={train.status === TrainStatus.Departed}>
+				<p>
+					{#if train.prevArrival}
+						{train.prevArrival.timestamp.toLocaleTimeString()}
+					{:else}
+						-
+					{/if}
 				</p>
 				<p class="font-bold">{train.planned.toLocaleTimeString()}</p>
 				{#if train.actual}
@@ -62,7 +58,7 @@
 					<p>On time</p>
 				{/if}
 				<div class="flex justify-between">
-					<p>{train.platform}</p>
+					<p>{train.platform || '?'}</p>
 					<p>{train.destination}</p>
 					<p>{train.train}</p>
 				</div>
