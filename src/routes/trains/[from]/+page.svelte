@@ -20,9 +20,9 @@
 		// return train.planned > now;
 	};
 
-	$: departures = data.trains.filter(
-		(train: Train) => futureTrain(train) && train.platform !== 'x'
-	);
+	$: departures = data.trains
+		.filter((train: Train) => futureTrain(train) && train.platform !== 'x')
+		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
 	onMount(() => {
 		const interval = setInterval(() => {
