@@ -21,13 +21,13 @@
 	};
 
 	$: departures = data.trains
-		.filter((train: Train) => futureTrain(train) && train.platform !== 'x')
+		.filter((train: Train) => futureTrain(train))
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
 	onMount(() => {
 		const interval = setInterval(() => {
 			invalidateAll();
-		}, 1000 * 30);
+		}, 1000 * 10);
 
 		return () => {
 			clearInterval(interval);
