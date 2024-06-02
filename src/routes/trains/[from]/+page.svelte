@@ -53,6 +53,7 @@
 			departurePoint={{ x: xScale(train.planned), y: 50}}
 			departureTime={train.planned}
 			width={width}
+			height={50}
 		/>
 		{/if}
 		<!-- {#if train.operator === 'MTRN'} -->

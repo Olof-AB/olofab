@@ -29,6 +29,8 @@
   This component is built on a horizontal line which sort of represents the platform.
 -->
 <svg width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+  <polyline points={`0,50 ${width},50`} stroke="gray" stroke-width="0.5" />
+
   {#if arrivalTime !== undefined}
   <!-- Arrival arrow, horizontal line that turns 90 degrees and points to the arrivalPoint. It underlines the label for arrivalTime -->
   <polyline points={lineToPoint(arrivalLabelStart, arrivalPoint)} stroke="black" stroke-width="2" fill="none"/>
