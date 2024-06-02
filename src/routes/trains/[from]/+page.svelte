@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as d3 from 'd3';
+
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { invalidateAll } from '$app/navigation';
@@ -10,6 +12,7 @@
 	import TrainView from '$lib/components/viz/TrainView.svelte';
 
 	export let data: PageData;
+	export let width = 960;
 
 	const futureTrain = (train: Train) => {
 		const now = new Date();
@@ -25,6 +28,10 @@
 		.filter((train: Train) => futureTrain(train))
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
+	$: xScale = d3.scaleTime()
+		.domain(d3.extent(departures, (d) => d.timestamp))
+		.range([0, width]);
+
 	onMount(() => {
 		const interval = setInterval(() => {
 			invalidateAll();
@@ -36,16 +43,20 @@
 	});
 </script>
 
-<div class="flex flex-wrap justify-start">
-	<TrainView
-		departurePoint={{ x: 10, y: 50 }}
-		arrivalPoint={{ x: 50, y: 50 }}
-		arrivalTime={new Date()}
-		departureTime={new Date()}
-	/>
+<div bind:clientWidth={width} class="flex flex-wrap justify-start">
+	
 	{#each departures as train (train.train)}
+		{#if train.prevArrival}
+		<TrainView
+			arrivalPoint={{ x: xScale(train.prevArrival.timestamp), y: 50}}
+			arrivalTime={train.prevArrival.timestamp}
+			departurePoint={{ x: xScale(train.planned), y: 50}}
+			departureTime={train.planned}
+			width={width}
+		/>
+		{/if}
 		<!-- {#if train.operator === 'MTRN'} -->
-		<div
+		<!-- <div
 			class="max-w-xlx m-1 border border-4 p-3"
 			class:border-green-800={train.status === TrainStatus.Arrived}
 			class:border-red-800={train.status === TrainStatus.Canceled}
@@ -76,7 +87,7 @@
 					<p>{train.train}</p>
 				</div>
 			</div>
-		</div>
+		</div> -->
 		<!-- {/if} -->
 	{/each}
 </div>
