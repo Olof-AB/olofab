@@ -7,6 +7,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { linear } from 'svelte/easing';
 	import { flip } from 'svelte/animate';
+	import TrainView from '$lib/components/viz/TrainView.svelte';
 
 	export let data: PageData;
 
@@ -36,6 +37,12 @@
 </script>
 
 <div class="flex flex-wrap justify-start">
+	<TrainView
+		departurePoint={{ x: 10, y: 50 }}
+		arrivalPoint={{ x: 50, y: 50 }}
+		arrivalTime={new Date()}
+		departureTime={new Date()}
+	/>
 	{#each departures as train (train.train)}
 		<!-- {#if train.operator === 'MTRN'} -->
 		<div
