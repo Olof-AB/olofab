@@ -115,7 +115,11 @@ export async function get_trains(from: string, to: string | null = null) {
 
 	const departuresWithArrivals = departures.map((train) => {
 		const arrival = train_fixed.filter(
-			(t) => t.platform === train.platform && !t.departure && t.timestamp <= train.timestamp
+			(t) =>
+				t.platform === train.platform &&
+				!t.departure &&
+				t.timestamp <= train.timestamp &&
+				t.timestamp.getTime() >= train.timestamp.getTime() - 30 * 60 * 1000
 		);
 		if (arrival.length > 0) {
 			return { ...train, prevArrival: arrival[arrival.length - 1] };
