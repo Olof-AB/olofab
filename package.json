@@ -45,6 +45,7 @@
 		"bits-ui": "^0.21.2",
 		"clsx": "^2.1.0",
 		"d3": "^7.9.0",
+		"date-fns": "^4.1.0",
 		"formsnap": "^1.0.0",
 		"lucide-svelte": "^0.364.0",
 		"openmeteo": "^1.1.3",

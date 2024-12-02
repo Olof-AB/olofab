@@ -111,7 +111,9 @@ export async function get_trains(from: string, to: string | null = null) {
 		status: TrainStatus.Unknown
 	}));
 
-	const departures = train_fixed.filter((train) => train.departure && train.location === from);
+	const departures = train_fixed.filter(
+		(train) => train.departure && train.location === from && train.platform !== 'x'
+	);
 
 	const departuresWithArrivals = departures.map((train) => {
 		const arrival = train_fixed.filter(
