@@ -39,11 +39,13 @@ interface TrvTrain {
 	WebLinkName: string;
 }
 
-export async function get_trains(from: string, to: string | null = null) {
+export async function get_trains(from: string, to: string | null = null, operators: string[] = []) {
 	console.log('Getting trains for ', from, to);
 
 	const from_filter = `<EQ name="LocationSignature" value="${from}" />`;
 	const to_filter = to ? `<EQ name="LocationSignature" value="${to}" />` : '';
+
+	const operator_filter = operators.map((op) => `<EQ name="Operator" value="${op}" />`).join('\n');
 
 	const question = `<?xml version="1.0" ?>
 		<REQUEST>
@@ -68,9 +70,14 @@ export async function get_trains(from: string, to: string | null = null) {
 						${from_filter}
 						${to_filter}
 					</OR>
+					<OR>
+						${operator_filter}
+					</OR>
 				</FILTER>
 			</QUERY>
 		</REQUEST>`;
+
+	// console.log(question);
 
 	const trainResponse = await fetch('https://api.trafikinfo.trafikverket.se/v2/data.json', {
 		method: 'POST',

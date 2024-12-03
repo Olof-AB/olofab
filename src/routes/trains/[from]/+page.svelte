@@ -68,20 +68,18 @@
 						-
 					{/if}
 				</p>
-				<p class:font-bold={!isDelayed(train)} class:text-gray-400={isDelayed(train)}>
-					{toTimeString(train.planned)}
-				</p>
-				{#if train.actual}
-					<p>Departed</p>
-				{:else if train.estimated}
-					<p class:font-bold={isDelayed(train)}>{toTimeString(train.estimated)}</p>
-				{:else}
-					<p>On time</p>
-				{/if}
+				<div class="flex justify-between gap-1 text-lg">
+					<p class:font-bold={!isDelayed(train)} class:text-gray-400={isDelayed(train)}>
+						{toTimeString(train.planned)}
+					</p>
+					{#if train.estimated}
+						<p class:font-bold={isDelayed(train)}>{toTimeString(train.estimated)}</p>
+					{/if}
+				</div>
 				<div class="flex justify-between gap-2">
 					<p>{train.platform || '?'}</p>
 					<p>{train.destination}</p>
-					<p>{train.train}</p>
+					<p>{train.operator}</p>
 				</div>
 			</div>
 		</div>
