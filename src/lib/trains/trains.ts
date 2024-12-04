@@ -61,6 +61,7 @@ export async function get_trains(from: string, to: string | null = null, operato
 				<INCLUDE>ToLocation</INCLUDE>
 				<INCLUDE>TrackAtLocation</INCLUDE>
 				<INCLUDE>Operator</INCLUDE>
+				<INCLUDE>TrainOwner</INCLUDE>
 				<INCLUDE>AdvertisedTrainIdent</INCLUDE>
 				<INCLUDE>Advertised</INCLUDE>
 				<INCLUDE>Canceled</INCLUDE>
@@ -78,7 +79,7 @@ export async function get_trains(from: string, to: string | null = null, operato
 			</QUERY>
 		</REQUEST>`;
 
-	console.log(question);
+	// console.log(question);
 
 	const trainResponse = await fetch('https://api.trafikinfo.trafikverket.se/v2/data.json', {
 		method: 'POST',
@@ -113,6 +114,7 @@ export async function get_trains(from: string, to: string | null = null, operato
 			: '?',
 		platform: train['TrackAtLocation'],
 		operator: train['Operator'],
+		trainowner: train['TrainOwner'],
 		departure: train['ActivityType'] === 'Avgang',
 		advertised: train['Advertised'],
 		canceled: train['Canceled'],
