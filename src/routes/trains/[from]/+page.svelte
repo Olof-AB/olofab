@@ -11,6 +11,8 @@
 
 	export let data: PageData;
 
+	let selectedTrain: string | null = null;
+
 	const futureTrain = (train: Train) => {
 		const now = new Date();
 
@@ -39,12 +41,13 @@
 <div class="flex flex-wrap justify-start">
 	{#each departures as train (train.train)}
 		<!-- {#if train.operator === 'MTRN'} -->
-		<div
+		<button
 			animate:flip={{ duration: 200, easing: linear }}
 			in:fly={{ y: 100, duration: 500, easing: linear }}
 			out:fade={{ duration: 500, easing: linear }}
+			on:click={() => (selectedTrain = train.train)}
 		>
-			<Traincard {train} />
-		</div>
+			<Traincard {train} detailed={selectedTrain === train.train} />
+		</button>
 	{/each}
 </div>
