@@ -3,10 +3,10 @@ import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, url }) => {
 	const to = url.searchParams.get('to');
-	const operator = url.searchParams.get('operator');
-	const operators = operator?.split(',') ?? [];
+	const trainowners_str = url.searchParams.get('trainowners');
+	const trainowners = trainowners_str?.split(',') ?? [];
 
 	return {
-		trains: await get_trains(params.from, to, operators)
+		trains: await get_trains(params.from, to, trainowners)
 	};
 };

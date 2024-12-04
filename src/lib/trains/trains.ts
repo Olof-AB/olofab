@@ -39,16 +39,22 @@ interface TrvTrain {
 	WebLinkName: string;
 }
 
-export async function get_trains(from: string, to: string | null = null, operators: string[] = []) {
-	console.log('Getting trains for ', from, to, operators);
+export async function get_trains(
+	from: string,
+	to: string | null = null,
+	trainowners: string[] = []
+) {
+	console.log('Getting trains for ', from, to, trainowners);
 
 	const from_filter = `<EQ name="LocationSignature" value="${from}" />`;
 	const to_filter = to ? `<EQ name="LocationSignature" value="${to}" />` : '';
 
-	const operator_lines = operators.map((op) => `<EQ name="Operator" value="${op}" />`).join('\n');
-	const operators_with_or = `<OR>\n${operator_lines}\n</OR>`;
+	const trainowner_lines = trainowners
+		.map((op) => `<EQ name="TrainOwner" value="${op.toUpperCase()}" />`)
+		.join('\n');
+	const trainowner_or = `<OR>\n${trainowner_lines}\n</OR>`;
 
-	const operators_filter = operators.length > 0 ? operators_with_or : '';
+	const trainowner_filter = trainowners.length > 0 ? trainowner_or : '';
 
 	const question = `<?xml version="1.0" ?>
 		<REQUEST>
@@ -74,12 +80,12 @@ export async function get_trains(from: string, to: string | null = null, operato
 						${from_filter}
 						${to_filter}
 					</OR>
-					${operators_filter}
+					${trainowner_filter}
 				</FILTER>
 			</QUERY>
 		</REQUEST>`;
 
-	// console.log(question);
+	console.log(question);
 
 	const trainResponse = await fetch('https://api.trafikinfo.trafikverket.se/v2/data.json', {
 		method: 'POST',
