@@ -1,0 +1,25 @@
+<script lang="ts">
+	import type { Train } from '$lib/trains/types';
+	import { fade, fly } from 'svelte/transition';
+	import { linear } from 'svelte/easing';
+	import { flip } from 'svelte/animate';
+	import Traincard from './traincard.svelte';
+
+	export let departures: Train[];
+
+	let selectedTrain: string | null = null;
+</script>
+
+<div class="flex flex-wrap justify-start">
+	{#each departures as train (train.train)}
+		<!-- {#if train.operator === 'MTRN'} -->
+		<button
+			animate:flip={{ duration: 200, easing: linear }}
+			in:fly={{ y: 100, duration: 500, easing: linear }}
+			out:fade={{ duration: 500, easing: linear }}
+			on:click={() => (selectedTrain = train.train)}
+		>
+			<Traincard {train} detailed={selectedTrain === train.train} />
+		</button>
+	{/each}
+</div>
