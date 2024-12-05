@@ -8,6 +8,15 @@
 	export let departures: Train[];
 
 	let selectedTrain: string | null = null;
+
+	function handleTrainClick(train: Train) {
+		if (selectedTrain === train.train) {
+			selectedTrain = null;
+			return;
+		}
+
+		selectedTrain = train.train;
+	}
 </script>
 
 <div class="flex flex-wrap justify-start">
@@ -17,7 +26,7 @@
 			animate:flip={{ duration: 200, easing: linear }}
 			in:fly={{ y: 100, duration: 500, easing: linear }}
 			out:fade={{ duration: 500, easing: linear }}
-			on:click={() => (selectedTrain = train.train)}
+			on:click={() => handleTrainClick(train)}
 		>
 			<Traincard {train} detailed={selectedTrain === train.train} />
 		</button>
