@@ -39,15 +39,45 @@ interface TrvTrain {
 	WebLinkName: string;
 }
 
-export async function get_trains(
-	from: string,
-	to: string | null = null,
-	trainowners: string[] = []
-) {
-	console.log('Getting trains for ', from, to, trainowners);
+function fix_traindata(train: TrvTrain): Train {
+	const train_fixed = {
+		planned: new Date(train['AdvertisedTimeAtLocation']),
+		estimated: train['EstimatedTimeAtLocation']
+			? new Date(train['EstimatedTimeAtLocation'])
+			: undefined,
+		actual: train['TimeAtLocation'] ? train['TimeAtLocation'] : undefined,
+		timestamp: train['TimeAtLocation']
+			? new Date(train['TimeAtLocation'])
+			: train['EstimatedTimeAtLocation']
+				? new Date(train['EstimatedTimeAtLocation'])
+				: new Date(train['AdvertisedTimeAtLocation']),
+		location: train['LocationSignature'],
+		train: train['AdvertisedTrainIdent'],
+		destination: train['ToLocation']
+			? train['ToLocation'].map((loc) => loc['LocationName']).join(', ')
+			: '?',
+		platform: train['TrackAtLocation'],
+		operator: train['Operator'],
+		trainowner: train['TrainOwner'],
+		departure: train['ActivityType'] === 'Avgang',
+		advertised: train['Advertised'],
+		canceled: train['Canceled'],
+		status: TrainStatus.Unknown
+	};
 
-	const from_filter = `<EQ name="LocationSignature" value="${from}" />`;
-	const to_filter = to ? `<EQ name="LocationSignature" value="${to}" />` : '';
+	return train_fixed;
+}
+
+async function get_trains_from_trv(stations: string[], trainowners: string[]): Promise<Train[]> {
+	console.log('Getting trains for ', stations, trainowners);
+
+	if (stations.length === 0) {
+		return [];
+	}
+
+	const station_filters = stations
+		.map((station) => `<EQ name="LocationSignature" value="${station}" />`)
+		.join('\n');
 
 	const trainowner_lines = trainowners
 		.map((op) => `<EQ name="TrainOwner" value="${op.toUpperCase()}" />`)
@@ -77,15 +107,14 @@ export async function get_trains(
 					<GT name="AdvertisedTimeAtLocation" value="$dateadd(-0.2:00)" />
 					<LT name="AdvertisedTimeAtLocation" value="$dateadd(0.4:00)" />
 					<OR>
-						${from_filter}
-						${to_filter}
+						${station_filters}
 					</OR>
 					${trainowner_filter}
 				</FILTER>
 			</QUERY>
 		</REQUEST>`;
 
-	console.log(question);
+	// console.log(question);
 
 	const trainResponse = await fetch('https://api.trafikinfo.trafikverket.se/v2/data.json', {
 		method: 'POST',
@@ -102,37 +131,18 @@ export async function get_trains(
 
 	const trains = parsedResponse['RESPONSE']['RESULT'][0]['TrainAnnouncement'];
 
-	const train_fixed: Train[] = trains.map((train: TrvTrain) => ({
-		planned: new Date(train['AdvertisedTimeAtLocation']),
-		estimated: train['EstimatedTimeAtLocation']
-			? new Date(train['EstimatedTimeAtLocation'])
-			: undefined,
-		actual: train['TimeAtLocation'] ? train['TimeAtLocation'] : undefined,
-		timestamp: train['TimeAtLocation']
-			? new Date(train['TimeAtLocation'])
-			: train['EstimatedTimeAtLocation']
-				? new Date(train['EstimatedTimeAtLocation'])
-				: new Date(train['AdvertisedTimeAtLocation']),
-		location: train['LocationSignature'],
-		train: train['AdvertisedTrainIdent'],
-		destination: train['ToLocation']
-			? train['ToLocation'].map((loc) => loc['LocationName']).join(', ')
-			: '?',
-		platform: train['TrackAtLocation'],
-		operator: train['Operator'],
-		trainowner: train['TrainOwner'],
-		departure: train['ActivityType'] === 'Avgang',
-		advertised: train['Advertised'],
-		canceled: train['Canceled'],
-		status: TrainStatus.Unknown
-	}));
+	const trains_fixed = trains.map(fix_traindata);
 
-	const departures = train_fixed.filter(
+	return trains_fixed;
+}
+
+function addArrivalAndStatus(trains: Train[], from: string): Train[] {
+	const departures = trains.filter(
 		(train) => train.departure && train.location === from && train.platform !== 'x'
 	);
 
 	const departuresWithArrivals = departures.map((train) => {
-		const arrival = train_fixed.filter(
+		const arrival = trains.filter(
 			(t) =>
 				t.platform === train.platform &&
 				!t.departure &&
@@ -161,12 +171,12 @@ export async function get_trains(
 		return { ...train, status: TrainStatus.NotArrived };
 	});
 
-	if (to === null) {
-		return departuresWithArrivalsAndStatus;
-	}
+	return departuresWithArrivalsAndStatus;
+}
 
-	return departuresWithArrivalsAndStatus.filter((train) => {
-		return train_fixed.some((other) => {
+function filterTrainsBetweenStations(departures: Train[], allTrains: Train[], to: string): Train[] {
+	return departures.filter((train) => {
+		return allTrains.some((other) => {
 			if (other.departure) {
 				return false;
 			}
@@ -178,4 +188,30 @@ export async function get_trains(
 			);
 		});
 	});
+}
+
+export async function get_trains(
+	from: string,
+	to: string | null = null,
+	trainowners: string[] = []
+) {
+	const stations = [from];
+	if (to) {
+		stations.push(to);
+	}
+
+	const trains_fixed = await get_trains_from_trv(stations, trainowners);
+
+	const departuresFrom = addArrivalAndStatus(trains_fixed, from);
+
+	if (to === null) {
+		return { departuresFrom, departuresTo: [] };
+	}
+
+	const departuresTo = addArrivalAndStatus(trains_fixed, to);
+
+	return {
+		departuresFrom: filterTrainsBetweenStations(departuresFrom, trains_fixed, to),
+		departuresTo: filterTrainsBetweenStations(departuresTo, trains_fixed, from)
+	};
 }
