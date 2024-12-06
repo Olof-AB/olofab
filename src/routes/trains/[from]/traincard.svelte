@@ -4,7 +4,7 @@
 
 	export let train;
 	export let detailed = false;
-	let delayed = train.estimated ? train.estimated.getTime() - train.planned.getTime() > 0 : false;
+	$: delayed = train.estimated ? train.estimated.getTime() - train.planned.getTime() > 0 : false;
 
 	const toTimeString = (date: Date) => {
 		return format(date, 'HH:mm');

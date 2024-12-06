@@ -137,9 +137,7 @@ async function get_trains_from_trv(stations: string[], trainowners: string[]): P
 }
 
 function addArrivalAndStatus(trains: Train[], from: string): Train[] {
-	const departures = trains.filter(
-		(train) => train.departure && train.location === from && train.platform !== 'x'
-	);
+	const departures = trains.filter((train) => train.departure && train.location === from);
 
 	const departuresWithArrivals = departures.map((train) => {
 		const arrival = trains.filter(
