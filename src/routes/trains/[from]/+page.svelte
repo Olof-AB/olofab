@@ -14,10 +14,12 @@
 	};
 
 	$: departures = data.trains_departure
+		.filter((train: Train) => train.advertised)
 		.filter((train: Train) => futureTrain(train))
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
 	$: arrivals = data.trains_arrival
+		.filter((train: Train) => train.advertised)
 		.filter((train: Train) => futureTrain(train))
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
