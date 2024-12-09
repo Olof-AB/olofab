@@ -9,6 +9,8 @@
 	const toTimeString = (date: Date) => {
 		return format(date, 'HH:mm');
 	};
+
+	// console.log(train);
 </script>
 
 <div
