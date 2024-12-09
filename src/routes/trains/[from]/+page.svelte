@@ -53,16 +53,51 @@
 	});
 </script>
 
-<h1>Departures from {fromStation}</h1>
-<Station departures={departures.future} />
+<div class="container">
+	<div class="from-row">
+		<h1>Departures from {fromStation}</h1>
+		<Station departures={departures.future.splice(0, 5)} />
+	</div>
+	<div class="transit-to">
+		<h1>In transit from {fromStation}</h1>
+		<Station departures={departures.inTransit.toReversed()} direction="down" />
+	</div>
+	<div class="transit-from overflow-y-auto">
+		{#if arrivals.future.length > 0}
+			<h1>In transit from {toStation}</h1>
+			<Station departures={arrivals.inTransit} direction="down" />
+		{/if}
+	</div>
 
-<h1>In transit from {fromStation}</h1>
-<Station departures={departures.inTransit} />
+	<div class="to-row">
+		{#if arrivals.future.length > 0}
+			<h1>Departures from {toStation}</h1>
+			<Station departures={arrivals.future.splice(0, 5)} />
+		{/if}
+	</div>
+</div>
 
-{#if arrivals.future.length > 0}
-	<h1>In transit from {toStation}</h1>
-	<Station departures={arrivals.inTransit} />
-
-	<h1>Departures from {toStation}</h1>
-	<Station departures={arrivals.future} />
-{/if}
+<style>
+	.container {
+		display: grid;
+		grid-template-columns: 1fr 24rem 24rem 1fr;
+		grid-template-rows: 8rem 1fr 8rem;
+		grid-gap: 4rem;
+	}
+	.from-row {
+		grid-column: 2 / 4;
+		grid-row: 1;
+	}
+	.transit-from {
+		grid-column: 2;
+		grid-row: 2;
+	}
+	.transit-to {
+		grid-column: 3;
+		grid-row: 2;
+	}
+	.to-row {
+		grid-column: 2 / 4;
+		grid-row: 3;
+	}
+</style>

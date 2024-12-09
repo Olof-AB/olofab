@@ -16,6 +16,7 @@ export interface Train {
 	destination: string;
 	platform: string;
 	operator: string;
+	trainowner: string;
 	departure: boolean;
 	advertised: boolean;
 	canceled: boolean;

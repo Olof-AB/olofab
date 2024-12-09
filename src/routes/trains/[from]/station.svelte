@@ -6,6 +6,7 @@
 	import Traincard from './traincard.svelte';
 
 	export let departures: Train[];
+	export let direction: 'left' | 'down' = 'left';
 
 	let selectedTrain: string | null = null;
 
@@ -19,10 +20,11 @@
 	}
 </script>
 
-<div class="flex flex-wrap justify-start">
+<div class="flex flex-wrap items-start justify-start" class:flex-col={direction === 'down'}>
 	{#each departures as train (train.train)}
 		<!-- {#if train.operator === 'MTRN'} -->
 		<button
+			class="max-w-md"
 			animate:flip={{ duration: 200, easing: linear }}
 			in:fly={{ y: 100, duration: 500, easing: linear }}
 			out:fade={{ duration: 500, easing: linear }}
