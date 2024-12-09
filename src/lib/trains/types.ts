@@ -21,4 +21,5 @@ export interface Train {
 	canceled: boolean;
 	status: TrainStatus;
 	prevArrival?: Train;
+	arrival?: Train;
 }

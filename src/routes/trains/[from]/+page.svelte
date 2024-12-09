@@ -2,26 +2,42 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { invalidateAll } from '$app/navigation';
-	import type { Train } from '$lib/trains/types';
+	import { TrainStatus, type Train } from '$lib/trains/types';
 	import Station from './station.svelte';
 
 	export let data: PageData;
 
-	const futureTrain = (train: Train) => {
-		const now = new Date();
-
-		return now.getTime() - train.timestamp.getTime() < 30 * 60 * 1000;
-	};
-
 	$: departures = data.trains_departure
 		.filter((train: Train) => train.advertised)
-		.filter((train: Train) => futureTrain(train))
-		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+		.reduce(
+			(curr, train: Train) => {
+				if (train.status === TrainStatus.Departed) {
+					if (train.arrival?.actual === undefined) {
+						return { ...curr, inTransit: [...curr.inTransit, train] };
+					}
+					return curr;
+				}
+				return { ...curr, future: [...curr.future, train] };
+			},
+			{ future: [] as Train[], inTransit: [] as Train[] }
+		);
 
 	$: arrivals = data.trains_arrival
 		.filter((train: Train) => train.advertised)
-		.filter((train: Train) => futureTrain(train))
-		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+		.reduce(
+			(curr, train: Train) => {
+				if (train.status === TrainStatus.Departed) {
+					if (train.arrival?.actual === undefined) {
+						return { ...curr, inTransit: [...curr.inTransit, train] };
+					}
+					return curr;
+				}
+				return { ...curr, future: [...curr.future, train] };
+			},
+			{ future: [] as Train[], inTransit: [] as Train[] }
+		);
 
 	const fromStation = data.fromStation;
 	const toStation = data.toStation;
@@ -38,9 +54,15 @@
 </script>
 
 <h1>Departures from {fromStation}</h1>
-<Station {departures} />
+<Station departures={departures.future} />
 
-{#if arrivals.length > 0}
+<h1>In transit from {fromStation}</h1>
+<Station departures={departures.inTransit} />
+
+{#if arrivals.future.length > 0}
+	<h1>In transit from {toStation}</h1>
+	<Station departures={arrivals.inTransit} />
+
 	<h1>Departures from {toStation}</h1>
-	<Station departures={arrivals} />
+	<Station departures={arrivals.future} />
 {/if}

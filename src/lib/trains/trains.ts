@@ -172,20 +172,23 @@ function addArrivalAndStatus(trains: Train[], from: string): Train[] {
 	return departuresWithArrivalsAndStatus;
 }
 
-function filterTrainsBetweenStations(departures: Train[], allTrains: Train[], to: string): Train[] {
-	return departures.filter((train) => {
-		return allTrains.some((other) => {
-			if (other.departure) {
-				return false;
-			}
-
-			return (
+function addArrivalInfo(departures: Train[], allTrains: Train[], to: string): Train[] {
+	return departures.map((train) => {
+		const arrival = allTrains.find(
+			(other) =>
 				other.location === to &&
 				train.train === other.train &&
 				train.planned.getTime() < other.planned.getTime()
-			);
-		});
+		);
+		if (arrival) {
+			return { ...train, arrival };
+		}
+		return train;
 	});
+}
+
+function filterTrainsBetweenStations(departures: Train[], allTrains: Train[], to: string): Train[] {
+	return departures.filter((train) => (train.arrival ? train.arrival.location === to : false));
 }
 
 export async function get_trains(
@@ -206,10 +209,13 @@ export async function get_trains(
 		return { departuresFrom, departuresTo: [] };
 	}
 
+	const departuresFromWithArrivalInfo = addArrivalInfo(departuresFrom, trains_fixed, to);
+
 	const departuresTo = addArrivalAndStatus(trains_fixed, to);
+	const departuresToWithArrivalInfo = addArrivalInfo(departuresTo, trains_fixed, from);
 
 	return {
-		departuresFrom: filterTrainsBetweenStations(departuresFrom, trains_fixed, to),
-		departuresTo: filterTrainsBetweenStations(departuresTo, trains_fixed, from)
+		departuresFrom: filterTrainsBetweenStations(departuresFromWithArrivalInfo, trains_fixed, to),
+		departuresTo: filterTrainsBetweenStations(departuresToWithArrivalInfo, trains_fixed, from)
 	};
 }
