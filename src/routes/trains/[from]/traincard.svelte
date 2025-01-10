@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { type Train, TrainStatus } from '$lib/trains/types';
 	import { format } from 'date-fns';
-	import { es } from 'date-fns/locale';
 
 	export let train: Train;
 	export let detailed = false;
@@ -12,8 +11,10 @@
 	$: prevPlannedEvent =
 		train.status === TrainStatus.Departed ? train.planned : train.prevArrival?.planned;
 	$: platform = train.status === TrainStatus.Departed ? train.arrival?.platform : train.platform;
+	$: train.estimated = TrainStatus.Departed ? train.arrival?.estimated : train.estimated;
+	$: planned = TrainStatus.Departed ? train.arrival?.planned : train.planned;
 
-	function getNextEvent(train: Train) {
+	function getNextPlannedEvent(train: Train) {
 		if (train.status === TrainStatus.Departed) {
 			if (train.arrival) {
 				if (train.arrival.estimated) {
@@ -62,11 +63,11 @@
 		<div class="flex justify-between gap-1 text-lg">
 			<p class="text-gray-400">
 				{#if train.estimated}
-					{toTimeString(train.estimated)}
+					{toTimeString(planned ?? train.planned)}
 				{/if}
 			</p>
 			<p class="font-bold">
-				{toTimeString(getNextEvent(train))}
+				{toTimeString(train.estimated ?? planned)}
 			</p>
 		</div>
 		<div class="flex justify-between gap-2">
