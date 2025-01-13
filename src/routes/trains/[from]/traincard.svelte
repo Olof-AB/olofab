@@ -5,34 +5,66 @@
 	export let train: Train;
 	export let detailed = false;
 
-	$: delayed = train.estimated ? train.estimated.getTime() - train.planned.getTime() > 0 : false;
-	$: prevEvent =
-		train.status === TrainStatus.Departed ? train.timestamp : train.prevArrival?.timestamp;
-	$: prevPlannedEvent =
-		train.status === TrainStatus.Departed ? train.planned : train.prevArrival?.planned;
-	$: platform = train.status === TrainStatus.Departed ? train.arrival?.platform : train.platform;
-	$: train.estimated = TrainStatus.Departed ? train.arrival?.estimated : train.estimated;
-	$: planned = TrainStatus.Departed ? train.arrival?.planned : train.planned;
-
-	function getNextPlannedEvent(train: Train) {
-		if (train.status === TrainStatus.Departed) {
-			if (train.arrival) {
-				if (train.arrival.estimated) {
-					return train.arrival.estimated;
-				} else {
-					return train.arrival.planned;
-				}
-			}
-			return train.planned;
-		} else {
-			if (train.estimated) {
-				return train.estimated;
-			}
-			return train.planned;
-		}
+	interface InfoToShow {
+		delayed: boolean;
+		prevEvent: Date | undefined;
+		prevPlannedEvent: Date | undefined;
+		platform: string | undefined;
+		train: Train;
+		estimated: Date | undefined;
+		planned: Date | undefined;
+		trainowner: string;
 	}
 
-	const toTimeString = (date: Date) => {
+	function convertToInfoToShow(train: Train): InfoToShow {
+		if (train.status === TrainStatus.Departed) {
+			const delayed = train.arrival?.estimated
+				? train.arrival.estimated.getTime() - train.arrival.planned.getTime() > 0
+				: false;
+
+			const prevEvent = train.timestamp;
+			const prevPlannedEvent = train.planned;
+			const platform = train.arrival?.platform;
+			const estimated = train.arrival?.estimated;
+			const planned = train.arrival?.planned;
+
+			return {
+				delayed,
+				prevEvent,
+				prevPlannedEvent,
+				platform,
+				train,
+				estimated,
+				planned,
+				trainowner: train.trainowner
+			};
+		}
+		const delayed = train.estimated
+			? train.estimated.getTime() - train.planned.getTime() > 0
+			: false;
+		const prevEvent = train.prevArrival?.timestamp;
+		const prevPlannedEvent = train.prevArrival?.planned;
+		const platform = train.platform;
+		const estimated = train.estimated;
+		const planned = train.planned;
+
+		return {
+			delayed,
+			prevEvent,
+			prevPlannedEvent,
+			platform,
+			train,
+			estimated,
+			planned,
+			trainowner: train.trainowner
+		};
+	}
+
+	$: info = convertToInfoToShow(train);
+
+	const toTimeString = (date: Date | undefined) => {
+		if (!date) return '-';
+
 		return format(date, 'HH:mm');
 	};
 
@@ -43,18 +75,18 @@
 	class="m-2 w-auto rounded-md border border-2 p-3"
 	class:border-green-800={train.status === TrainStatus.Arrived}
 	class:border-red-800={train.status === TrainStatus.Canceled}
-	class:border-yellow-400={delayed && train.status !== TrainStatus.Departed}
+	class:border-yellow-400={info.delayed}
 >
 	<div>
 		<div class="flex justify-between gap-1">
 			<p class="text-gray-400">
-				{#if prevPlannedEvent && prevEvent && prevPlannedEvent.getTime() < prevEvent.getTime()}
-					{toTimeString(prevPlannedEvent)}
+				{#if info.prevPlannedEvent && info.prevEvent && info.prevPlannedEvent.getTime() < info.prevEvent.getTime()}
+					{toTimeString(info.prevPlannedEvent)}
 				{/if}
 			</p>
 			<p class="">
-				{#if prevEvent}
-					{toTimeString(prevEvent)}
+				{#if info.prevEvent}
+					{toTimeString(info.prevEvent)}
 				{:else}
 					-
 				{/if}
@@ -62,12 +94,12 @@
 		</div>
 		<div class="flex justify-between gap-1 text-lg">
 			<p class="text-gray-400">
-				{#if train.estimated}
-					{toTimeString(planned ?? train.planned)}
+				{#if info.estimated}
+					{toTimeString(info.planned)}
 				{/if}
 			</p>
 			<p class="font-bold">
-				{toTimeString(train.estimated ?? planned)}
+				{toTimeString(train.estimated ?? info.planned)}
 			</p>
 		</div>
 		<div class="flex justify-between gap-2">
@@ -78,7 +110,7 @@
 			{:else}
 				<p></p>
 			{/if}
-			<p>{platform}</p>
+			<p>{info.platform}</p>
 		</div>
 	</div>
 </div>

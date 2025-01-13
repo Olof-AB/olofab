@@ -53,7 +53,7 @@
 	});
 </script>
 
-<div class="container">
+<div class="container text-xs">
 	<div class="from-row">
 		<h1>Departures from {fromStation}</h1>
 		<Station departures={departures.future.splice(0, 5)} />
@@ -80,7 +80,7 @@
 <style>
 	.container {
 		display: grid;
-		grid-template-columns: 1fr 24rem 24rem 1fr;
+		grid-template-columns: 1fr 16rem 16rem 1fr;
 		grid-template-rows: 8rem 1fr 8rem;
 		grid-gap: 4rem;
 	}
