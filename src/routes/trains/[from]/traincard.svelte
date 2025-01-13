@@ -69,6 +69,8 @@
 	};
 
 	// console.log(train);
+
+	$: detailed && console.log(train);
 </script>
 
 <div
@@ -99,7 +101,7 @@
 				{/if}
 			</p>
 			<p class="font-bold">
-				{toTimeString(train.estimated ?? info.planned)}
+				{toTimeString(info.estimated ?? info.planned)}
 			</p>
 		</div>
 		<div class="flex justify-between gap-2">
