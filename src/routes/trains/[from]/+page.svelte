@@ -9,6 +9,11 @@
 
 	$: departures = data.trains_departure
 		.filter((train: Train) => train.advertised)
+		.filter(
+			(train: Train) =>
+				train.status !== TrainStatus.Canceled ||
+				train.planned.getTime() > Date.now() - 5 * 60 * 1000
+		) // Filter out canceled trains that are more than 5 minutes old
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 		.reduce(
 			(curr, train: Train) => {
@@ -25,6 +30,11 @@
 
 	$: arrivals = data.trains_arrival
 		.filter((train: Train) => train.advertised)
+		.filter(
+			(train: Train) =>
+				train.status !== TrainStatus.Canceled ||
+				train.planned.getTime() > Date.now() - 5 * 60 * 1000
+		) // Filter out canceled trains that are more than 5 minutes old
 		.toSorted((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 		.reduce(
 			(curr, train: Train) => {

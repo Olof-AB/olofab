@@ -100,7 +100,7 @@
 					{toTimeString(info.planned)}
 				{/if}
 			</p>
-			<p class="font-bold">
+			<p class="font-bold" class:text-red-800={train.status === TrainStatus.Canceled}>
 				{toTimeString(info.estimated ?? info.planned)}
 			</p>
 		</div>
