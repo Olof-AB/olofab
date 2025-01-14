@@ -81,14 +81,14 @@
 	.container {
 		display: grid;
 		grid-template-columns: 1fr 16rem 16rem 1fr;
-		grid-template-rows: 9rem 1fr 9rem;
+		grid-template-rows: 10rem 1fr 10rem;
 		grid-gap: 2rem;
 	}
 
 	@media (max-width: 768px) {
 		.container {
 			grid-template-columns: 0 1fr 1fr 0;
-			grid-gap: 1rem;
+			grid-gap: 0rem;
 		}
 	}
 	.from-row {
