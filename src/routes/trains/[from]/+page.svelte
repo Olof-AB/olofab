@@ -81,31 +81,46 @@
 	.container {
 		display: grid;
 		grid-template-columns: 1fr 16rem 16rem 1fr;
-		grid-template-rows: 7rem 1fr 7rem;
-		grid-gap: 4rem;
+		grid-template-rows: 9rem 1fr 9rem;
+		grid-gap: 2rem;
 	}
 
 	@media (max-width: 768px) {
 		.container {
 			grid-template-columns: 0 1fr 1fr 0;
-			grid-gap: 0;
+			grid-gap: 1rem;
 		}
 	}
 	.from-row {
-		grid-column: 2 / 4;
-		grid-row: 1;
-		overflow: hidden;
+		position: fixed; /* Fixes the element relative to the viewport */
+		top: 0; /* Aligns it to the bottom of the screen */
+		width: 100%; /* Ensures it spans the full width of the viewport */
+		height: 9rem;
+		background-color: hsl(var(--background)); /* Optional: Adds a background color */
+		z-index: 10; /* Ensures it stays above other elements */
+		overflow: hidden; /* Prevents content overflow */
+		padding-bottom: 1rem;
+		padding-top: 1rem;
 	}
 	.transit-from {
 		grid-column: 2;
 		grid-row: 2;
+		overflow: scroll;
 	}
 	.transit-to {
 		grid-column: 3;
 		grid-row: 2;
+		overflow: scroll;
 	}
 	.to-row {
-		grid-column: 2 / 4;
-		grid-row: 3;
+		position: fixed; /* Fixes the element relative to the viewport */
+		bottom: 0; /* Aligns it to the bottom of the screen */
+		width: 100%; /* Ensures it spans the full width of the viewport */
+		height: 9rem;
+		background-color: hsl(var(--background)); /* Optional: Adds a background color */
+		z-index: 10; /* Ensures it stays above other elements */
+		overflow: hidden; /* Prevents content overflow */
+		padding-bottom: 1rem;
+		padding-top: 1rem;
 	}
 </style>
