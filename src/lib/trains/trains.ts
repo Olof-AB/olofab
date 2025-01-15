@@ -1,4 +1,5 @@
 import { env } from '$env/dynamic/private';
+import { stationNameFromCode } from './stations';
 import type { Train } from './types';
 import { TrainStatus } from './types';
 
@@ -65,7 +66,12 @@ function fix_traindata(train: TrvTrain): Train {
 		status: TrainStatus.Unknown
 	};
 
-	return train_fixed;
+	const locationReadable = stationNameFromCode(train['LocationSignature']);
+	const destinationReadable = train['ToLocation']
+		? train['ToLocation'].map((loc) => stationNameFromCode(loc['LocationName'])).join(', ')
+		: '?';
+
+	return { ...train_fixed, locationReadable, destinationReadable };
 }
 
 async function get_trains_from_trv(stations: string[], trainowners: string[]): Promise<Train[]> {

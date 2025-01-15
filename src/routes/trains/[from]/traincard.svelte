@@ -106,7 +106,7 @@
 		</div>
 		<div class="flex justify-between gap-2">
 			{#if detailed}
-				<p>{train.destination}</p>
+				<p>{train.destinationReadable}</p>
 				<p>{train.trainowner}</p>
 				<p>{train.train}</p>
 			{:else}

@@ -12,8 +12,10 @@ export interface Train {
 	actual: Date | undefined;
 	timestamp: Date;
 	location: string;
+	locationReadable: string;
 	train: string;
 	destination: string;
+	destinationReadable: string;
 	platform: string;
 	operator: string;
 	trainowner: string;
@@ -23,4 +25,13 @@ export interface Train {
 	status: TrainStatus;
 	prevArrival?: Train;
 	arrival?: Train;
+}
+
+export interface Station {
+	name: string;
+	shortName: string;
+	code: string;
+	platform: string[];
+	prognosticated: boolean;
+	modifiedTime: Date;
 }
